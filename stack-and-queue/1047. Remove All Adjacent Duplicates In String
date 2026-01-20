@@ -1,0 +1,129 @@
+# Common Mistakes: Remove All Adjacent Duplicates in String
+
+## Problem Overview
+Given a string `s`, repeatedly remove adjacent duplicate characters until no more duplicates exist.
+
+**Example:** `"abbaca"` → `"ca"`
+- Remove "bb" → "aaca"
+- Remove "aa" → "ca"
+
+---
+
+## ❌ Incorrect Solution
+
+```python
+class Solution:
+    def removeDuplicates(self, s: str) -> str:
+        lst = list(s)
+        for s in lst:
+            if s == lst or s == lst[-1]:
+                lst.pop()
+            else:
+                lst.append(s)
+        return "".join(lst)
+```
+
+---
+
+## 🐛 Mistakes Identified
+
+### 1. **Iterating Over a List While Modifying It**
+```python
+for s in lst:  # Iterating over lst
+    lst.pop()  # Modifying lst during iteration
+    lst.append(s)  # Adding to lst during iteration
+```
+**Problem:** When you modify a list while iterating over it, the iteration becomes unpredictable. Elements can be skipped or processed incorrectly.
+
+**Lesson:** Don't modify the same list you're iterating over. Use a separate data structure (like a stack).
+
+---
+
+### 2. **Incorrect Condition: `s == lst`**
+```python
+if s == lst or s == lst[-1]:
+```
+**Problem:** 
+- `s` is a single character (string)
+- `lst` is a list
+- Comparing `'a' == ['a', 'b', 'c']` will **always** be `False`
+
+**Lesson:** Be mindful of data types when comparing values.
+
+---
+
+### 3. **Flawed Logic**
+The algorithm doesn't follow the stack-based pattern needed for this problem:
+- You need to check if the **current character** matches the **top of the stack**
+- If yes → remove the top (pop)
+- If no → add current character (push)
+
+Your code tries to iterate through the original list and pop/append, which doesn't implement the correct logic.
+
+---
+
+### 4. **Missing Empty Check Before Accessing `lst[-1]`**
+```python
+if s == lst or s == lst[-1]:
+```
+**Problem:** If `lst` is empty, `lst[-1]` will raise an `IndexError`.
+
+**Lesson:** Always check if a list is non-empty before accessing elements by index.
+
+---
+
+## ✅ Correct Solution
+
+```python
+class Solution:
+    def removeDuplicates(self, s: str) -> str:
+        stack = []
+        for char in s:
+            if stack and stack[-1] == char:
+                stack.pop()  # Remove duplicate
+            else:
+                stack.append(char)  # Add character
+        return "".join(stack)
+```
+
+### Key Points:
+1. **Use a separate stack** - Don't modify the string you're iterating over
+2. **Check if stack is non-empty** - `if stack` prevents `IndexError`
+3. **Use `and` for short-circuit evaluation** - Safely check `stack[-1]`
+4. **Clear logic** - Pop if duplicate, append otherwise
+
+---
+
+## 🔍 How It Works
+
+**Example:** `s = "abbaca"`
+
+| Step | char | Stack Before | Action | Stack After |
+|------|------|--------------|--------|-------------|
+| 1 | 'a' | [] | Append | ['a'] |
+| 2 | 'b' | ['a'] | Append | ['a', 'b'] |
+| 3 | 'b' | ['a', 'b'] | Pop (duplicate) | ['a'] |
+| 4 | 'a' | ['a'] | Pop (duplicate) | [] |
+| 5 | 'c' | [] | Append | ['c'] |
+| 6 | 'a' | ['c'] | Append | ['c', 'a'] |
+
+**Result:** `"ca"`
+
+---
+
+## 💡 Key Takeaways
+
+1. **Stack is the right tool** for problems involving adjacent duplicates
+2. **Always validate before accessing** list elements (check if non-empty)
+3. **Don't iterate and modify the same collection** - use separate data structures
+4. **Use `and` for safety** - leverages short-circuit evaluation to prevent errors
+5. **Think about edge cases** - empty strings, single characters, all duplicates
+
+---
+
+## 📚 Related Concepts
+
+- **Stack data structure** - LIFO (Last In, First Out)
+- **Short-circuit evaluation** - `and` stops evaluating if first condition is False
+- **List modification during iteration** - common pitfall in Python
+- **IndexError prevention** - always validate before accessing by index
